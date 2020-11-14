@@ -1,0 +1,15 @@
+[WalMart]
+url = "https://www.walmart.com/ip/Sony-PlayStation-5-Digital-Edition/493824815"
+
+[BestBuy]
+url = "https://www.bestbuy.com/site/sony-playstation-5-digital-edition-console/6430161.p?skuId=6430161"
+
+#Amazon has a rather in-depth CAPTCHA in place. Not sure how to get around it
+[Amazon]
+url = "https://www.amazon.com/Pokemon-TCG-Champions-Trainer-Multicolor/dp/B08DN23BSM"
+
+[NewEgg]
+url = "https://www.newegg.com/p/N82E16868110292"
+
+[Playstation]
+url = "https://direct.playstation.com/en-us/consoles/console/playstation5-digital-edition-console.3005817"
