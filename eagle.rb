@@ -8,13 +8,22 @@ require 'pry'
 class EagleEye
     def initialize
         @DISCORD_URL = ENV["DISCORD_URL"]
+        @HEALTH_URL = ENV["HEALTH_URL"]
     end
 
     def start
+        Thread.new {
+            Kernel.loop do
+                health_check
+                sleep(600)
+            end
+        }
+        
         Kernel.loop do
-        iterate
-        sleep(30) # Check every 30 seconds
+            iterate
+            sleep(30) # Check every 30 seconds
         end
+
     end
 
     def iterate
@@ -25,18 +34,22 @@ class EagleEye
             if status == true 
                 puts("\e[32m#{store}: In stock!\e[0m")
                 msg = store + ": In Stock!\n"
-                send_message(msg, obj.url)
+                send_message(msg, obj.url, @DISCORD_URL)
             else
                 puts("\e[31m#{store}: Out of Stock\e[0m")
             end
         end
     end
 
-    def send_message(msg, url)
+    def health_check
+        send_message("Bot is alive", "", @HEALTH_URL)
+    end
+
+    def send_message(msg, url, discord)
         puts("Sending Discord notification")
         message = msg + "\n" + url
         
-        client = Discordrb::Webhooks::Client.new(url: @DISCORD_URL)
+        client = Discordrb::Webhooks::Client.new(url: discord)
 
         client.execute do |builder|
             builder.content = message
