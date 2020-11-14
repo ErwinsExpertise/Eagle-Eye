@@ -7,5 +7,5 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 gem 'nokogiri'
 gem 'toml'
 gem 'open-uri'
-gem 'discordrb/webhooks'
+gem 'discordrb'
 gem 'zlib'
