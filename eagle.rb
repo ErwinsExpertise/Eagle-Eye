@@ -3,7 +3,6 @@ require 'nokogiri'
 require 'open-uri'
 require 'discordrb/webhooks'
 require 'zlib'
-require 'pry'
 
 class EagleEye
     def initialize
@@ -46,15 +45,19 @@ class EagleEye
     end
 
     def send_message(msg, url, discord)
-        puts("Sending Discord notification")
         message = msg + "\n" + url
-        
-        client = Discordrb::Webhooks::Client.new(url: discord)
+        begin
+            client = Discordrb::Webhooks::Client.new(url: discord)
 
-        client.execute do |builder|
-            builder.content = message
+            client.execute do |builder|
+                builder.content = message
+            end
+            
+        rescue RestClient::NotFound
+            puts("Discord Webhook Environment Variables not set!\nDISCORD_URL= #{@DISCORD_URL}\nHEALTH_URL=#{@HEALTH_URL}\n")
+            exit(1)
         end
-
+        puts("Sent Discord notification")
     end
 
 end
@@ -169,10 +172,11 @@ class WebsiteBuilder
 
         url_list << WalMart.new(@urls["WalMart"]["url"])
         url_list << BestBuy.new(@urls["BestBuy"]["url"])
-        # Disabled Amazon due to Captcha
-        #url_list << Amazon.new(@urls["Amazon"]["url"])
         url_list << NewEgg.new(@urls["NewEgg"]["url"])
         #url_list << Playstation.new(@urls["Playstation"]["url"])
+
+        # Disabled Amazon due to Captcha
+        #url_list << Amazon.new(@urls["Amazon"]["url"])
 
         return url_list
     end
@@ -189,12 +193,20 @@ class Scraper
     end
 
     def scrape_site
+        begin
+
         stream = URI.open(@url,
         "User-Agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36",
         "accept" => " text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
         "accept-encoding" => "gzip, deflate",
         "accept-language"=> "en-US,en;q=0.9",
         )
+        rescue OpenURI::HTTPError => e
+
+            puts "Couldn't reach #{@url}, #{e}"
+            return true
+        end
+
 
         if (stream.content_encoding.empty?)
             body = stream.read
@@ -210,6 +222,11 @@ class Scraper
         # Playstation check
         if @url.include? "direct.playstation.com"
             ele = doc.css(@button).to_a
+
+            # If element can't be found then the direct queue is up
+            if ele.nil?
+                return true
+            end
 
             #Find primary
             ele.each do | el |
