@@ -29,14 +29,16 @@ class EagleEye
         url_list = WebsiteBuilder.new.assign
 
         url_list.each do | obj |
-            store, status = obj.scrape
-            if status == true 
-                puts("\e[32m#{store}: In stock!\e[0m")
-                msg = store + ": In Stock!\n"
-                send_message(msg, obj.url, @DISCORD_URL)
-            else
-                puts("\e[31m#{store}: Out of Stock\e[0m")
-            end
+            Thread.new {
+                store, status = obj.scrape
+                if status == true 
+                    puts("\e[32m#{store}: In stock!\e[0m")
+                    msg = store + ": In Stock!\n"
+                    send_message(msg, obj.url, @DISCORD_URL)
+                else
+                    puts("\e[31m#{store}: Out of Stock\e[0m")
+                end
+            }
         end
     end
 
@@ -52,7 +54,7 @@ class EagleEye
             client.execute do |builder|
                 builder.content = message
             end
-            
+
         rescue RestClient::NotFound
             puts("Discord Webhook Environment Variables not set!\nDISCORD_URL= #{@DISCORD_URL}\nHEALTH_URL=#{@HEALTH_URL}\n")
             exit(1)

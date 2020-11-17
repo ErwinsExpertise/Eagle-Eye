@@ -16,11 +16,11 @@ Eagle-Eye is a webscraper that is used to monitor the stock of specific items in
 
 ### Dependecies
 
-gem 'nokogiri'
-gem 'toml'
-gem 'open-uri'
-gem 'discordrb'
-gem 'zlib'
+- gem 'nokogiri'
+- gem 'toml'
+- gem 'open-uri'
+- gem 'discordrb'
+- gem 'zlib'
 
 ### Environment Variables
 Discord Webhook URL's for notification channel and health-check
